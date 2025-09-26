@@ -8,10 +8,15 @@ app.use(cors());
 
 app.post('/hash', async (req, res) => {
   const password = req.body.password;
+  const salt = req.body.salt;
   if (!password) return res.status(400).json({error: 'no password'});
-  const saltRounds = 10;
-  const hash = await bcrypt.hash(password, saltRounds);
-  res.json({ hash });
+  if (!salt) return res.status(400).json({error: 'no salt'});
+  try {
+    const hash = await bcrypt.hash(password, salt);
+    res.json({ hash });
+  } catch (err) {
+    res.status(500).json({error: err.message});
+  }
 });
 
 const port = 5000;
